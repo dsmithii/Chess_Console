@@ -1,7 +1,6 @@
 require 'Debugger.rb'
 require './chess_pieces.rb'
 
-
 class Board
 
   attr_accessor :grid
@@ -19,7 +18,6 @@ class Board
   end
 
   def draw_pieces() ## FOR DEBUGGING
-
     @grid.each do |row|
       row.each do |piece|
         if piece.nil?
@@ -32,7 +30,7 @@ class Board
     end
   end
 
-  def move_to(start_loc,fin_loc) ## returns true if valid move, false if invalid
+  def move_to(start_loc,fin_loc,scenario=:real_scenario) ## returns true if valid move, false if invalid
     start_piece, end_piece = grid[start_loc[0]][start_loc[1]], grid[fin_loc[0]][fin_loc[1]]
 
     if start_piece.possible_moves(self).include?(fin_loc)
@@ -40,38 +38,51 @@ class Board
       grid[start_loc[0]][start_loc[1]] = nil
       start_piece.location = fin_loc
       add_piece(start_piece)
+      player.pieces.delete(end_piece) if !end_piece.nil? && scenario == :real_scenario
 
-      player.pieces.delete(end_piece) unless end_piece.nil?
-      puts "Valid Move"
-      return true
+      return :valid_move
     end
 
-    puts "Invalid Move"
-    return false
+      return :invalid_move
   end
 
+  def check?(king_location, opponent, hyp = :no)
+    possible_moves(opponent, hyp).include?(king_location)
+  end ### test.
 
+  def check_mate?(player, opponent) ## Player = person_under_check
+    return false if !check?(player.king.location, opponent)
 
-  def check?(player, opponent) ##1st whose turn it is
-    moves_opp = possible_moves(opponent)
-    p moves_opp
-    p player.king.location
-     return moves_opp.include?(player.king.location)
+    possible_moves_king = player.king.possible_moves(self)
+    possible_moves_king.each {|move| return false unless check?(move, opponent)}
+
+    ## checking for blocks, if all opponents pieces cannot be blocked, CHECK_MATE.
+    opponent.pieces.all? do |piece|
+      pos_in_danger = (piece.possible_moves(self) & possible_moves_king) + piece.location
+      !can_block?(pos_in_danger, player, opponent)
+    end
   end
 
-  def check_mate
+  def can_block?(threatening_moves, player, opponent) ## player: potentially in check_mate
+    player.pieces.each do |piece|
 
+       (threatening_moves & piece.possible_moves(self)).each do |block|
+         hyp_board = self.dup
+         hyp_board.move_to(piece.location, block, :hypothetical) ## should not move originial piece
+         return true unless hyp_board.check?(player.king.location, opponent)
+       end
+
+    end
+    false
   end
 
-  def possible_moves(player)
+  def possible_moves(player, own_color_ok = :yes)
     moves = []
-    player.pieces.each {|piece| moves += piece.possible_moves(self)}
+    player.pieces.each {|piece| moves += piece.possible_moves(self, own_color_ok)}
     moves
   end
 
 end
-
-
 
 class Player
   attr_accessor :pieces, :king
@@ -80,18 +91,12 @@ class Player
     @pieces = [piece]
     @king = king
     @color = color
-
   end
-
-
-
 
 end
 
-
 board = Board.new
 
-#
 # rook2 = Rook.new([5,3], :white, "R")
 # queen = Queen.new([1,1], :white, "q")
 # bishop = Bishop.new([7,7], :black, "B")
@@ -101,31 +106,29 @@ board = Board.new
 
 
 
-king = King.new([4,2],:white, "k")
-
-rook1 = Rook.new([4,4], :black, "R")
-
-
+piece1 = King.new([7,7],:white, "k")
+piece2 = Bishop.new([5,7], :black, "b")
+piece3 = Queen.new([7,0], :black, "Q")
 
 
 
-p1 = Player.new(:white, king, king)
-p2 = Player.new(:black, rook1, nil)
-# board.add_piece (rook2)
-# board.add_piece (queen)
-# board.add_piece (bishop)
-board.add_piece (king)
-board.add_piece (rook1)
-# board.add_piece (knight)
-# board.add_piece (pawn)
+p1 = Player.new(:white, piece1, piece1)
+p2 = Player.new(:black, piece3, nil)
+p2.pieces << piece2
 
-# p "Care about: #{pawn.possible_moves(board)}:"
-# # puts "0,0"
-# # p board.grid[0][4]
+
+
+board.add_piece (piece1)
+board.add_piece (piece2)
+board.add_piece (piece3)
+
+p "Knight Moves #{piece3.possible_moves(board)}"
+p "Player2 #{p2.pieces}"
 
 board.draw_pieces()
 
-puts board.check?(p1,p2)
+puts "check mate #{board.check_mate?(p1,p2)}"
+
 
 
 

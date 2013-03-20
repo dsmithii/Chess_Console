@@ -1,6 +1,6 @@
 class Piece
 
-  attr_accessor :location, :color
+  attr_accessor :location, :color, :display_letter
 
 
   def initialize(location, color, display_letter, move_type)
@@ -11,7 +11,7 @@ class Piece
     @rules = []
   end
 
-  def possible_moves_rule(board, rule) ## rule comes in format [row,col]
+  def possible_moves_rule(board, rule, own_color_ok = :yes) ## rule comes in format [row,col]
     piece = nil
     row_add, col_add  = rule[0], rule[1]
     possible_moves_arr = []
@@ -21,9 +21,9 @@ class Piece
       return possible_moves_arr  if !board.in_bounds([row, col])
 
       piece = board.grid[row][col]
-      possible_moves_arr << [row, col] if piece.nil? || piece.color != color
+      possible_moves_arr << [row, col] if piece.nil? || piece.color != color || scenario != :yes
 
-      puts "#{display_letter}: #{@finite_type}"
+      #puts "#{display_letter}: #{@finite_type}"
       return possible_moves_arr if @finite_type == :non_sliding
 
       row_add += rule[0]
@@ -32,9 +32,9 @@ class Piece
     possible_moves_arr
   end
 
-  def possible_moves(board)
+  def possible_moves(board,scenario = :real)
     moves = []
-    @rules.each { |rule| moves = moves + possible_moves_rule(board, rule)}
+    @rules.each { |rule| moves = moves + possible_moves_rule(board, rule, scenario)}
     moves
   end
 
