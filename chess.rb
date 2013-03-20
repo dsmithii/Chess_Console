@@ -50,6 +50,8 @@ class Board
     return false
   end
 
+
+
   def check?(player, opponent) ##1st whose turn it is
     moves_opp = possible_moves(opponent)
     p moves_opp
