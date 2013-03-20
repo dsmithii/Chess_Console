@@ -46,7 +46,7 @@ class Rook < Piece
   RULES = [[0,-1],[0,1],[1,0],[-1,0]]
 
   def initialize (location, color, display_letter)
-    super(location, color, display_letter, :non_sliding)
+    super(location, color, display_letter, :sliding)
     @rules = RULES
   end
 
@@ -58,7 +58,7 @@ class Bishop < Piece
   RULES = [[1,1],[-1,1],[-1,-1],[1,-1]]
 
   def initialize (location, color, display_letter)
-   super(location, color, display_letter, :non_sliding)
+   super(location, color, display_letter, :sliding)
    @rules = RULES
   end
 
@@ -70,7 +70,7 @@ class Queen < Piece
   RULES = [[1,1],[-1,1],[-1,-1],[1,-1],[0,-1],[0,1],[1,0],[-1,0]]
 
   def initialize (location, color, display_letter)
-    super(location, color, display_letter, :non_sliding)
+    super(location, color, display_letter, :sliding)
     @rules = RULES
   end
 
@@ -82,7 +82,7 @@ class King < Piece
   RULES = [[1,1],[-1,1],[-1,-1],[1,-1],[0,-1],[0,1],[1,0],[-1,0]]
 
   def initialize (location, color, display_letter)
-    super(location, color, display_letter, :sliding)
+    super(location, color, display_letter, :non_sliding)
     @rules = RULES
   end
 
@@ -94,7 +94,7 @@ class Knight < Piece
   RULES = [[2,1],[-2,1],[-2,-1],[1,-2],[2,-1],[-1,-2],[-1,2],[1,2]]
 
   def initialize (location, color, display_letter)
-    super(location, color, display_letter, :sliding)
+    super(location, color, display_letter, :non_sliding)
     @rules = RULES
   end
 
@@ -106,7 +106,7 @@ class Pawn < Piece
   RULES = [1,0]
 
   def initialize (location, color, display_letter)
-    super(location, color, display_letter, :sliding)
+    super(location, color, display_letter, :non_sliding)
 
     @rules = [1,0]
     case location[0] ## initial row

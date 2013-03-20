@@ -50,8 +50,11 @@ class Board
     return false
   end
 
-  def check()
-
+  def check?(player, opponent) ##1st whose turn it is
+    moves_opp = possible_moves(opponent)
+    p moves_opp
+    p player.king.location
+     return moves_opp.include?(player.king.location)
   end
 
   def check_mate
@@ -60,7 +63,7 @@ class Board
 
   def possible_moves(player)
     moves = []
-    player.pieces.each {|piece| moves << piece.possible_moves(self)}
+    player.pieces.each {|piece| moves += piece.possible_moves(self)}
     moves
   end
 
@@ -69,18 +72,12 @@ end
 
 
 class Player
-  attr_accessor :pieces
+  attr_accessor :pieces, :king
 
-  def initialize(color)
-    pieces = []
-    case color
-      when :black ##top
-        pieces = [Rook.new([0,0], :white, "R")
-        ]
-
-      when :white
-    end
-    @pieces
+  def initialize(color, piece, king)
+    @pieces = [piece]
+    @king = king
+    @color = color
 
   end
 
@@ -92,32 +89,42 @@ end
 
 board = Board.new
 
-rook1 = Rook.new([5,5], :white, "R")
-rook2 = Rook.new([5,3], :white, "R")
-queen = Queen.new([1,1], :white, "q")
-bishop = Bishop.new([7,7], :black, "B")
+#
+# rook2 = Rook.new([5,3], :white, "R")
+# queen = Queen.new([1,1], :white, "q")
+# bishop = Bishop.new([7,7], :black, "B")
+#
+# knight = Knight.new([5,4], :white, "l")
+# pawn = Pawn.new([4,4], :black, "P")
+
+
+
 king = King.new([4,2],:white, "k")
-knight = Knight.new([5,4], :white, "l")
-pawn = Pawn.new([4,4], :black, "P")
+
+rook1 = Rook.new([4,4], :black, "R")
 
 
-board.add_piece (rook1)
-board.add_piece (rook2)
-board.add_piece (queen)
-board.add_piece (bishop)
+
+
+
+p1 = Player.new(:white, king, king)
+p2 = Player.new(:black, rook1, nil)
+# board.add_piece (rook2)
+# board.add_piece (queen)
+# board.add_piece (bishop)
 board.add_piece (king)
-board.add_piece (knight)
-board.add_piece (pawn)
+board.add_piece (rook1)
+# board.add_piece (knight)
+# board.add_piece (pawn)
 
-p "Care about: #{pawn.possible_moves(board)}:"
-# puts "0,0"
-# p board.grid[0][4]
-
-board.draw_pieces()
-
-puts board.move_to([4,4],[5,5])
+# p "Care about: #{pawn.possible_moves(board)}:"
+# # puts "0,0"
+# # p board.grid[0][4]
 
 board.draw_pieces()
+
+puts board.check?(p1,p2)
+
 
 
 
