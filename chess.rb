@@ -6,13 +6,15 @@ class Board
   attr_accessor :grid
 
   def initialize(grid= Array.new(8) {[nil]*8})
+    # KL: just use a function to generate the board, little awkward to pass
+    # a block as an optional argument
     @grid = grid
   end
 
   def add_piece(piece)
     @grid[piece.location[0]][piece.location[1]] = piece
   end
-
+  # KL: a validation method like this should have a ?
   def in_bounds(location)
     location[0] >=0 && location[1] >= 0 && location[0] <= 7 && location[1] <= 7
   end
@@ -95,7 +97,9 @@ class Player
       when :black
         row, pawn_row = 0, 1
     end
-
+      # KL: probably shouldn't have all this in initialize
+      # better to have a place peieces method that you call
+      # might also make more sense in the board class
       @pieces = [
       Rook.new([row,0], color, "#{if color == :white then "r" else "R" end}"),
       Rook.new([row,7], color, "#{if color == :white then "r" else "R" end}"),
