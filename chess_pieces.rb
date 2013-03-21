@@ -11,7 +11,7 @@ class Piece
     @rules = []
   end
 
-  def possible_moves_rule(board, rule, own_color_ok = :yes) ## rule comes in format [row,col]
+  def possible_moves_rule(board, rule) ## rule comes in format [row,col]
     piece = nil
     row_add, col_add  = rule[0], rule[1]
     possible_moves_arr = []
@@ -21,7 +21,7 @@ class Piece
       return possible_moves_arr  if !board.in_bounds([row, col])
 
       piece = board.grid[row][col]
-      possible_moves_arr << [row, col] if piece.nil? || piece.color != color || scenario != :yes
+      possible_moves_arr << [row, col] if piece.nil? || piece.color != color
 
       #puts "#{display_letter}: #{@finite_type}"
       return possible_moves_arr if @finite_type == :non_sliding
@@ -32,9 +32,9 @@ class Piece
     possible_moves_arr
   end
 
-  def possible_moves(board,scenario = :real)
+  def possible_moves(board)
     moves = []
-    @rules.each { |rule| moves = moves + possible_moves_rule(board, rule, scenario)}
+    @rules.each { |rule| moves = moves + possible_moves_rule(board, rule)}
     moves
   end
 
@@ -108,26 +108,25 @@ class Pawn < Piece
   def initialize (location, color, display_letter)
     super(location, color, display_letter, :non_sliding)
 
-    @rules = [1,0]
-    case location[0] ## initial row
-    when 1
-      @rules = [-1,0]
-    when 6
+    case color ## initial row
+    when :black
       @rules = [1,0]
+    when :white
+      @rules = [-1,0]
     end
   end
 
   def possible_moves(board)
     ## if start row, can move 2 or 1
 
-    if (location[0] == 1 && @rules[0] == -1) || (location[0] == 6 && @rules[0] == 1)
-      return [ [location[0]+1,location[1]], [location[0]+2,location[1]] ]
+    if (location[0] == 1 && @rules[0] == 1) || (location[0] == 6 && @rules[0] == -1)
+      return [[location[0] + @rules[0], location[1]], [location[0]+ 2 * @rules[0], location[1]] ]
     else
       possible_moves_arr = []
       row, col = (location[0] + @rules[0]), location[1]
 
       piece = board.grid[row][col]
-      possible_moves_arr += piece.location if piece.nil?
+      possible_moves_arr += piece.location if !piece.nil?
       col = col-1
 
       return possible_moves_arr  if !board.in_bounds([row, col])
